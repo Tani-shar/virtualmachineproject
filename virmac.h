@@ -8,7 +8,11 @@
 #include <assert.h>
 #include <errno.h>
 
-#define ErrMem      0x01
+#define ErrMem 0x01
+#define NoArgs {0x00, 0x00}
+
+#define IMs (sizeof(instrmap) / sizeof(struct s_instrmap))
+
 
 typedef unsigned char int8;
 typedef unsigned short int int16;
@@ -26,8 +30,8 @@ typedef int8 Args;
 
 typedef unsigned short int Reg;
 
-
-struct s_registers{
+struct s_registers
+{
     Reg ax;
     Reg bx;
     Reg cx;
@@ -38,79 +42,83 @@ struct s_registers{
 
 typedef struct s_registers Registers;
 
-struct s_cpu{
+struct s_cpu
+{
     Registers r;
-
 };
 
 typedef struct s_cpu CPU;
 
 typedef int8 Stack[((unsigned int)(-1))];
 
-enum e_opcode{
+enum e_opcode
+{
     mov = 0x01,
     nop = 0x02
 };
 
-typedef enum e_opcode Opcode; 
+typedef enum e_opcode Opcode;
 
-struct s_instruction{
+struct s_instruction
+{
     Opcode o;
-    Args a[]; /* 0-2 bytes*/
+    Args a[2]; /* 0-2 bytes*/
 };
 typedef struct s_instruction Instruction;
 typedef Instruction Program;
 
 /*
     mov ax, 0x05 // (0x01 Or ax)
-                0x01 -> mov instruction 
+                0x01 -> mov instruction
 */
 
-struct s_vm{
+struct s_vm
+{
     CPU c;
     Stack s;
     Program *p;
 };
 typedef struct s_vm VM;
 
-struct s_instrmap{
+struct s_instrmap
+{
     Opcode o;
     int8 size;
 };
 
 typedef struct s_instrmap IM;
 
-
-
 static IM instrmap[] = {
-    { mov, 0x03 },  // Opcode 'mov' with size 3
-    { nop, 0x01 }   // Opcode 'nop' with size 1
+    {mov, 0x03}, // Opcode 'mov' with size 3
+    {nop, 0x01}  // Opcode 'nop' with size 1
 };
 
-VM *virtualmachine(Program*,int16);
+VM *virtualmachine(Program *, int16);
 
-void zero(int8 *str, int16 size) {
+void zero(int8 *str, int16 size)
+{
     int8 *p;
     int16 n;
 
-    for (n=0, p=str; n<size; n++, p++)
+    for (n = 0, p = str; n < size; n++, p++)
         *p = 0;
 
     return;
 }
 
-
-void copy(int8 *dst, int8 *src, int16 size) {
+void copy(int8 *dst, int8 *src, int16 size)
+{
     int8 *d, *s;
     int16 n;
 
-    for (n=size, d=dst, s=src; n; n--, d++, s++)
+    for (n = size, d = dst, s = src; n; n--, d++, s++)
         *d = *s;
 
     return;
 }
 
-Program* exampleprogram(void);
+Program *exampleprogram(void);
 
-int main(int,char**);
+int8 map(Opcode o);
 
+int main(int, char **);
